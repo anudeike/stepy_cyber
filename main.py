@@ -1,5 +1,8 @@
 import cv2
 from itertools import chain
+import numpy as np
+# import sys
+# np.set_printoptions(threshold=sys.maxsize)
 
 def char_to_binary(c):
     # helper function to get the correct representation of the binary number we need
@@ -22,31 +25,55 @@ def convert_message_to_binary(msg):
 
     return binary_rep_array
 
+def map_binary_list_to_encoding_region(e, b_c):
+    if int(b_c) == 1:
+        # make sure that it is odd
+        if e % 2 == 0:
+            e += 1
+
+        print("odd")
+    else:
+        # make sure it is even
+        if e % 2 == 1:
+            e -= 1
+        print("even")
+
+    return e
+
 def encode_image(bin_rep, imageMatrix):
 
     x = 0
-    while x < (len(imageMatrix)):
-        # flatten the region
-        encoding_region = list(chain.from_iterable(imageMatrix[x:x+3]))
+    outputImageMatrix = []
+    for bin_char in bin_rep:
+        # get the encoding region
+        encoding_region = list(chain.from_iterable(imageMatrix[x:x + 3]))
 
-        for i in range(bin_rep):
-            if int(bin_rep[i]) == 1:
-                # make sure that it is odd
-                print("odd")
-            else:
-                print("even")
+        # map the encoding region to the bin Char array
+        encoding_region_output = list(map(map_binary_list_to_encoding_region, encoding_region, bin_char))
 
+        # append the output
+        outputImageMatrix.append([encoding_region_output[j:j+3] for j in range(0, len(encoding_region_output), 3)])
+
+        # make sure to only get every 3
         x += 3
+
+
+    return list(chain.from_iterable(outputImageMatrix))
+
+
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
 
     # # read the image
-    # image = cv2.imread("test.png")
-    # color = image
-    # print(color.shape) # (64, 64, 3)
+    image = cv2.imread("test.png")
+    dim = image.shape[:2]
+     # (64, 64, 3)
 
-    # use a test
+    # flatten the image to make it usable
+    flattenImage = image.reshape((dim[0] * dim[1], 3))
+
+    #use a test
     fakeImage = [(27, 64, 164), (248, 244, 194), (174, 246, 250), (149, 95, 232),
      (188, 156, 169), (71, 167, 127), (132, 173, 97), (113, 69, 206),
      (255, 29, 213), (53, 153, 220), (246, 225, 229), (142, 82, 175)]
@@ -56,11 +83,8 @@ if __name__ == '__main__':
     # convert to binary
     binary_rep = convert_message_to_binary(msgToBeEncoded)
 
-    # flatten
-    flatten_binary_rep = list(chain.from_iterable(binary_rep))
-
     # encode
-    encode_image(flatten_binary_rep, fakeImage)
+    print(encode_image(binary_rep, flattenImage))
 
 
 
