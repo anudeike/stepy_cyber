@@ -63,50 +63,90 @@ def encode_image(bin_rep, imageMatrix):
 
     return list(chain.from_iterable(outputImageMatrix))
 
+def read_image_and_prepare_data(path=""):
+    if path == "":
+        raise ValueError("Path cannot be empty.")
 
+    img = cv2.imread(path)
+    img_dimensions = img.shape[:2]
+
+    # flatten
+    img = img.reshape((img_dimensions[0] * img_dimensions[1], 3))
+
+    return img, img_dimensions
+
+def encode(path, msg, output_path = "encode_output.png"):
+
+    # prepare data
+    prepared_img_data, img_dimen = read_image_and_prepare_data(path)
+
+    # msg
+    msg_binary_representation = convert_message_to_binary(msg)
+
+    # encode the image - get the data from the encoder
+    encoded_image_data = np.array(encode_image(msg_binary_representation, prepared_img_data))
+
+    # assert that the length of the of the encoded image_data is 3 * length of the msg
+    assert encoded_image_data.shape[0] == len(msg) * 3, "The encoded image data should be 3 times the length of the message!"
+
+    # concat the encoded image to the original image
+    output_image_data_flat = np.concatenate((encoded_image_data, prepared_img_data[len(msg) * 3:]), axis=0)
+
+    # reshape the output
+    outputImage = output_image_data_flat.reshape((img_dimen[0], img_dimen[1], 3))
+
+    # write the output
+    cv2.imwrite(output_path, outputImage)
+
+def decode(path):
+    pass
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
 
-    # # read the image
-    image = cv2.imread("test.png")
-    dim = image.shape[:2]
-     # (64, 64, 3)
-
-    # flatten the image to make it usable
-    flattenImage = image.reshape((dim[0] * dim[1], 3))
-
-    #use a test
-    fakeImage = [(27, 64, 164), (248, 244, 194), (174, 246, 250), (149, 95, 232),
-     (188, 156, 169), (71, 167, 127), (132, 173, 97), (113, 69, 206),
-     (255, 29, 213), (53, 153, 220), (246, 225, 229), (142, 82, 175)]
-
-    msgToBeEncoded = "Hii"
-
-    # convert to binary
-    binary_rep = convert_message_to_binary(msgToBeEncoded)
+    # # # read the image
+    # image = cv2.imread("test.png")
+    # dim = image.shape[:2]
+    #  # (64, 64, 3)
+    #
+    # # flatten the image to make it usable
+    # flattenImage = image.reshape((dim[0] * dim[1], 3))
+    #
+    # msgToBeEncoded = "Hii"
+    #
+    # # convert to binary
+    # binary_rep = convert_message_to_binary(msgToBeEncoded)
+    #
+    # # encode
+    # encoded_image_flat = np.array(encode_image(binary_rep, flattenImage))
+    #
+    # # encoded
+    # print(f"Encoded Image Flat: {encoded_image_flat}")
+    # print(f'Encoded Image Flat Shape: {encoded_image_flat.shape}')
+    #
+    # # concat
+    #
+    # outputImageFlat = np.concatenate((encoded_image_flat, flattenImage[len(msgToBeEncoded) * 3:]), axis=0)
+    #
+    #
+    # print(f"outputImageFlat Image Flat 2: {outputImageFlat}")
+    # print(f'outputImageFlat Flat Shape 2: {outputImageFlat.shape}')
+    #
+    # # output Image
+    # outputImage = outputImageFlat.reshape((dim[0], dim[1], 3))
+    #
+    # print(f'Output: {outputImage.shape}')
+    #
+    # cv2.imwrite('asd.png', outputImage)
 
     # encode
-    encoded_image_flat = np.array(encode_image(binary_rep, flattenImage))
 
-    # encoded
-    print(f"Encoded Image Flat: {encoded_image_flat}")
-    print(f'Encoded Image Flat Shape: {encoded_image_flat.shape}')
+    # DECODE
+    #img_data, image_dimensions = read_image_and_prepare_data('asd.png')
 
-    # concat
-
-    outputImageFlat = np.concatenate((encoded_image_flat, flattenImage[len(msgToBeEncoded) * 3:]), axis=0)
+    #print(img_data)
 
 
-    print(f"outputImageFlat Image Flat 2: {outputImageFlat}")
-    print(f'outputImageFlat Flat Shape 2: {outputImageFlat.shape}')
-
-    # output Image
-    outputImage = outputImageFlat.reshape((dim[0], dim[1], 3))
-
-    print(f'Output: {outputImage.shape}')
-
-    cv2.imwrite('asd.png', outputImage)
 
 
 
