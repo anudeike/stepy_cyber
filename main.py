@@ -42,6 +42,9 @@ def map_binary_list_to_encoding_region(e, b_c):
 
 def encode_image(bin_rep, imageMatrix):
 
+    print(f'Image Matrix: {imageMatrix}')
+    print(f'Image Matrix Shape: {imageMatrix.shape}')
+
     x = 0
     outputImageMatrix = []
     for bin_char in bin_rep:
@@ -84,7 +87,26 @@ if __name__ == '__main__':
     binary_rep = convert_message_to_binary(msgToBeEncoded)
 
     # encode
-    print(encode_image(binary_rep, flattenImage))
+    encoded_image_flat = np.array(encode_image(binary_rep, flattenImage))
+
+    # encoded
+    print(f"Encoded Image Flat: {encoded_image_flat}")
+    print(f'Encoded Image Flat Shape: {encoded_image_flat.shape}')
+
+    # concat
+
+    outputImageFlat = np.concatenate((encoded_image_flat, flattenImage[len(msgToBeEncoded) * 3:]), axis=0)
+
+
+    print(f"outputImageFlat Image Flat 2: {outputImageFlat}")
+    print(f'outputImageFlat Flat Shape 2: {outputImageFlat.shape}')
+
+    # output Image
+    outputImage = outputImageFlat.reshape((dim[0], dim[1], 3))
+
+    print(f'Output: {outputImage.shape}')
+
+    cv2.imwrite('asd.png', outputImage)
 
 
 
